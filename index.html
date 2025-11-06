@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quản Lý & Đánh Giá Học Sinh Mẫu Giáo</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4CAF50">
+  <style>
+    :root{--primary:#4CAF50;--success:#10b981;--danger:#ef4444;--warning:#f59e0b}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;padding:16px;background:linear-gradient(135deg,#e8f5e9 0%,#ffffff 100%);min-height:100vh}
+    .container{max-width:1600px;margin:0 auto;background:#fff;border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.08)}
+    h1{color:var(--primary);margin:0 0 24px;font-size:28px;text-align:center}
+    .top-section{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:24px}
+    .card{background:#f8fafc;padding:16px;border-radius:12px;border:2px solid #e2e8f0}
+    .card h2{margin:0 0 16px;font-size:18px;color:#334155}
+    .form-group{margin-bottom:12px}
+    label{display:block;margin-bottom:6px;font-weight:600;font-size:14px;color:#475569}
+    input,select,textarea{width:100%;padding:10px;border:2px solid #cbd5e1;border-radius:8px;font-size:14px;box-sizing:border-box}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)}
+    textarea{resize:vertical;min-height:60px}
+    .btn-group{display:flex;gap:8px;margin-top:12px}
+    button{padding:10px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;transition:all 0.2s}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-primary:hover{background:#43a047;transform:translateY(-2px)}
+    .btn-success{background:var(--success);color:#fff}
+    .btn-success:hover{background:#059669}
+    .btn-danger{background:var(--danger);color:#fff}
+    .btn-danger:hover{background:#dc2626}
+    .btn-warning{background:var(--warning);color:#fff}
+    .student-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:20px}
+    .student-card{background:var(--success);padding:12px;border-radius:10px;border:2px solid #059669;cursor:pointer;transition:all 0.2s;position:relative;color:#fff}
+    .student-card:hover{transform:translateY(-3px);box-shadow:0 8px 16px rgba(0,0,0,0.05)}
+    .student-card.absent{background:var(--danger);border-color:#dc2626}
+    .student-card.empty{border-style:dashed;background:#f9fafb;opacity:0.9;color:#64748b;border-color:#cbd5e1}
+    .student-number{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+    .student-name{font-size:14px;color:#fff;font-weight:500}
+    .student-card.empty .student-number{color:#64748b}
+    .student-card.empty .student-name{color:#64748b}
+    .attendance-badge{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(255,255,255,0.3);font-weight:700}
+    .rating-badge{background:var(--primary);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;margin-top:4px;display:inline-block;margin-right:4px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
+    .stat-card{background:linear-gradient(135deg,var(--primary) 0%,#2e7d32 100%);color:#fff;padding:16px;border-radius:12px;text-align:center}
+    .stat-number{font-size:32px;font-weight:700;margin-bottom:4px}
+    .stat-label{font-size:14px;opacity:0.9}
+    .quick-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+    .quick-actions button{flex:1;min-width:120px}
+    .rating-grid{display:grid;grid-template-columns:2fr 1fr;gap:8px;align-items:center;max-height:200px;overflow-y:auto;padding:4px}
+    .rating-item{display:contents}
+    .rating-label{font-size:12px;color:#334155;font-weight:500}
+    .scale-info{background:#fef3c7;padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:12px;border-left:4px solid var(--warning)}
+    .file-upload{border:2px dashed #cbd5e1;padding:20px;border-radius:8px;text-align:center;cursor:pointer;transition:all 0.2s}
+    .file-upload:hover{border-color:var(--primary);background:#f8fafc}
+    .file-upload input{display:none}
+    .output-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+    .output-table th,.output-table td{padding:8px;text-align:left;border:1px solid #e2e8f0}
+    .output-table th{background:var(--primary);color:#fff;font-weight:600}
+    .output-table tr:nth-child(even){background:#f8fafc}
+    .output-table tr:hover{background:#eef2ff}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 QUẢN LÝ & ĐÁNH GIÁ HỌC SINH MẪU GIÁO 🎨</h1>
+
+    <div class="top-section">
+      <div class="card">
+        <h2>📅 Thông Tin Ngày Học</h2>
+        <div class="form-group">
+          <label>Ngày học</label>
+          <input type="date" id="input-date" />
+        </div>
+        <div class="form-group">
+          <label>Tổng số học sinh (1-60)</label>
+          <input type="number" id="input-total" min="1" max="60" value="30" />
+        </div>
+        <button class="btn-primary" style="width:100%" onclick="updateTotalStudents()">Cập nhật số lượng</button>
+
+        <div style="margin-top:20px;padding-top:20px;border-top:2px solid #e2e8f0">
+          <h2 style="font-size:16px;margin-bottom:12px">📂 Nhập từ File</h2>
+          <div class="file-upload" onclick="document.getElementById('file-input').click()">
+            <input type="file" id="file-input" accept=".txt" onchange="importFromFile(event)" />
+            <div style="font-size:40px;margin-bottom:8px">📄</div>
+            <div style="font-weight:600;color:#334155">Click để chọn file .txt</div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px">Nhập dữ liệu học sinh từ file</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>✏️ Nhập Thông Tin Cơ Bản</h2>
+        <div class="form-group">
+          <label>Số thứ tự (1-60)</label>
+          <input type="number" id="input-number" min="1" max="60" value="1" />
+        </div>
+        <div class="form-group">
+          <label>Họ và tên học sinh</label>
+          <input type="text" id="input-name" placeholder="VD: Nguyễn Văn An" />
+        </div>
+        <div class="form-group">
+          <label>Điểm danh</label>
+          <select id="input-attendance" onchange="updateAttendancePreview()">
+            <option value="">-- Chọn --</option>
+            <option value="present">1 - Có mặt (Màu xanh)</option>
+            <option value="absent">2 - Vắng (Màu đỏ)</option>
+          </select>
+        </div>
+        <div class="btn-group">
+          <button class="btn-success" style="flex:1" onclick="saveBasicInfo()">💾 Lưu thông tin</button>
+          <button class="btn-danger" onclick="clearStudent()">🗑️ Xóa</button>
+        </div>
+        <div class="quick-actions">
+          <button class="btn-primary" onclick="markAllPresent()">✅ Tất cả có mặt</button>
+          <button class="btn-danger" onclick="clearAllAttendance()">🔄 Xóa điểm danh</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📊 Đánh Giá Chi Tiết</h2>
+        <div class="form-group">
+          <label>Tính cách</label>
+          <textarea id="input-personality" placeholder="VD: Hiếu động, thân thiện..."></textarea>
+        </div>
+
+        <div class="scale-info">
+          <strong>📏 Thang điểm:</strong> 1-10 (1: Yếu → 10: Xuất sắc)
+        </div>
+
+        <div class="rating-grid">
+          <div class="rating-label">1. Kỹ năng giao tiếp</div>
+          <input type="number" id="rating-1" min="1" max="10" value="5" />
+
+          <div class="rating-label">2. Khả năng học tập</div>
+          <input type="number" id="rating-2" min="1" max="10" value="5" />
+
+          <div class="rating-label">3. Sáng tạo</div>
+          <input type="number" id="rating-3" min="1" max="10" value="5" />
+
+          <div class="rating-label">4. Kỷ luật</div>
+          <input type="number" id="rating-4" min="1" max="10" value="5" />
+
+          <div class="rating-label">5. Tương tác xã hội</div>
+          <input type="number" id="rating-5" min="1" max="10" value="5" />
+
+          <div class="rating-label">6. Vận động</div>
+          <input type="number" id="rating-6" min="1" max="10" value="5" />
+
+          <div class="rating-label">7. Tự chăm sóc</div>
+          <input type="number" id="rating-7" min="1" max="10" value="5" />
+
+          <div class="rating-label">8. Cảm xúc</div>
+          <input type="number" id="rating-8" min="1" max="10" value="5" />
+
+          <div class="rating-label">9. Tập trung</div>
+          <input type="number" id="rating-9" min="1" max="10" value="5" />
+
+          <div class="rating-label">10. Giúp đỡ bạn</div>
+          <input type="number" id="rating-10" min="1" max="10" value="5" />
+        </div>
+
+        <button class="btn-warning" style="width:100%;margin-top:12px" onclick="saveRatings()">⭐ Lưu đánh giá</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card" style="background:linear-gradient(135deg,#4CAF50 0%,#2e7d32 100%)">
+        <div class="stat-number" id="stat-total">30</div>
+        <div class="stat-label">👥 Tổng học sinh</div>
+      </div>
+      <div class="stat-card" style="background:linear-gradient(135deg,#10b981 0%,#059669 100%)">
+        <div class="stat-number" id="stat-present">0</div>
+        <div class="stat-label">✅ Có mặt</div>
+      </div>
+      <div class="stat-card" style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%)">
+        <div class="stat-number" id="stat-absent">0</div>
+        <div class="stat-label">❌ Vắng mặt</div>
+      </div>
+      <div class="stat-card" style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%)">
+        <div class="stat-number" id="stat-rated">0</div>
+        <div class="stat-label">⭐ Đã đánh giá</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h2>📋 Danh Sách Học Sinh</h2>
+        <div style="display:flex;gap:8px">
+          <button class="btn-success" onclick="exportToFile()">📥 Xuất File TXT</button>
+          <button class="btn-primary" onclick="exportToExcel('day')">📤 Xuất CSV (Ngày)</button>
+          <button class="btn-primary" onclick="exportToExcel('week')">📤 Xuất CSV (Tuần)</button>
+          <button class="btn-primary" onclick="exportToExcel('month')">📤 Xuất CSV (Tháng)</button>
+        </div>
+      </div>
+      <div class="student-list" id="student-list"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h2>📊 Bảng Đánh Giá Chi Tiết</h2>
+      <div style="overflow-x:auto">
+        <div id="output-table"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Persistence: load/save from localStorage
+    const STORAGE_KEY = 'mamnon_app_v1';
+    function saveToStorage() {
+      const payload = {
+        students,
+        totalStudents,
+        dailyData
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (e) {
+        console.warn('Lỗi khi lưu localStorage', e);
+      }
+    }
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data.students) Object.assign(students, data.students);
+          if (data.totalStudents) totalStudents = data.totalStudents;
+          if (data.dailyData) Object.assign(dailyData, data.dailyData);
+          document.getElementById('input-total').value = totalStudents;
+          document.getElementById('stat-total').textContent = totalStudents;
+        }
+      } catch (e) {
+        console.warn('Lỗi khi đọc localStorage', e);
+      }
+    }
+
+    const students = {};
+    let totalStudents = 30;
+    let dailyData = {}; // Lưu dữ liệu theo ngày: {date: {students: {...}}}
+    const ratingLabels = [
+      'Kỹ năng giao tiếp',
+      'Khả năng học tập',
+      'Sáng tạo & Tưởng tượng',
+      'Kỷ luật & Tuân thủ',
+      'Tương tác xã hội',
+      'Kỹ năng vận động',
+      'Tự chăm sóc bản thân',
+      'Cảm xúc & Thái độ',
+      'Tập trung & Chú ý',
+      'Giúp đỡ bạn bè'
+    ];
+
+    document.getElementById('input-date').valueAsDate = new Date();
+
+    function updateAttendancePreview() {
+      const attendance = document.getElementById('input-attendance').value;
+      const number = parseInt(document.getElementById('input-number').value);
+      const card = document.getElementById(`student-${number}`);
+
+      if (card && attendance) {
+        card.classList.remove('present', 'absent', 'empty');
+        card.classList.add(attendance);
+      }
+    }
+
+    function initStudentList() {
+      const list = document.getElementById('student-list');
+      list.innerHTML = '';
+
+      for (let i = 1; i <= totalStudents; i++) {
+        const card = document.createElement('div');
+        card.id = `student-${i}`;
+        card.onclick = () => selectStudent(i);
+
+        const student = students[i];
+        if (student) {
+          // Mặc định là xanh (có mặt), chỉ đổi đỏ khi vắng
+          card.className = student.attendance === 'absent' ? 'student-card absent' : 'student-card';
+
+          let badgeHTML = '';
+          if (student.attendance === 'absent') {
+            badgeHTML = '<div class="attendance-badge">❌</div>';
+          }
+
+          let ratingHTML = '';
+          if (student.ratings) {
+            const avg = (student.ratings.reduce((a, b) => a + b, 0) / 10).toFixed(1);
+            ratingHTML = `<div class="rating-badge">TB: ${avg}</div>`;
+          }
+
+          card.innerHTML = `
+            <div class="student-number">${i}</div>
+            <div class="student-name">${student.name}</div>
+            ${ratingHTML}
+            ${badgeHTML}
+          `;
+        } else {
+          card.className = 'student-card empty';
+          card.innerHTML = `
+            <div class="student-number">${i}</div>
+            <div class="student-name">Chưa có</div>
+          `;
+        }
+
+        list.appendChild(card);
+      }
+
+      updateStats();
+      updateOutputTable();
+    }
+
+    function updateTotalStudents() {
+      const input = document.getElementById('input-total');
+      const newTotal = parseInt(input.value);
+
+      if (newTotal < 1 || newTotal > 60) {
+        alert('Số học sinh phải từ 1 đến 60!');
+        return;
+      }
+
+      totalStudents = newTotal;
+      document.getElementById('stat-total').textContent = totalStudents;
+      saveToStorage();
+      initStudentList();
+    }
+
+    function saveBasicInfo() {
+      const number = parseInt(document.getElementById('input-number').value);
+      const name = document.getElementById('input-name').value.trim();
+      const attendance = document.getElementById('input-attendance').value;
+      const date = document.getElementById('input-date').value;
+
+      if (number < 1 || number > totalStudents) {
+        alert(`Số thứ tự phải từ 1 đến ${totalStudents}!`);
+        return;
+      }
+
+      if (!name) {
+        alert('Vui lòng nhập tên học sinh!');
+        return;
+      }
+
+      if (!attendance) {
+        alert('Vui lòng chọn điểm danh!');
+        return;
+      }
+
+      if (!students[number]) students[number] = {};
+      students[number].name = name;
+      students[number].attendance = attendance;
+
+      // Lưu dữ liệu theo ngày
+      if (!dailyData[date]) dailyData[date] = {};
+      if (!dailyData[date][number]) dailyData[date][number] = {};
+      dailyData[date][number].name = name;
+      dailyData[date][number].attendance = attendance;
+
+      saveToStorage();
+      initStudentList();
+
+      if (number < totalStudents) {
+        document.getElementById('input-number').value = number + 1;
+        document.getElementById('input-name').value = '';
+        document.getElementById('input-name').focus();
+      }
+    }
+
+    function saveRatings() {
+      const number = parseInt(document.getElementById('input-number').value);
+      const date = document.getElementById('input-date').value;
+
+      if (!students[number] || !students[number].name) {
+        alert('Vui lòng lưu thông tin cơ bản trước!');
+        return;
+      }
+
+      const personality = document.getElementById('input-personality').value.trim();
+      const ratings = [];
+
+      for (let i = 1; i <= 10; i++) {
+        const value = parseInt(document.getElementById(`rating-${i}`).value);
+        if (value < 1 || value > 10) {
+          alert(`Điểm mục ${i} phải từ 1 đến 10!`);
+          return;
+        }
+        ratings.push(value);
+      }
+
+      students[number].personality = personality || 'Chưa mô tả';
+      students[number].ratings = ratings;
+
+      // Lưu đánh giá theo ngày
+      if (!dailyData[date]) dailyData[date] = {};
+      if (!dailyData[date][number]) dailyData[date][number] = {};
+      dailyData[date][number].personality = personality || 'Chưa mô tả';
+      dailyData[date][number].ratings = ratings;
+
+      saveToStorage();
+      initStudentList();
+      alert('✅ Đã lưu đánh giá thành công!');
+    }
+
+    function selectStudent(number) {
+      document.getElementById('input-number').value = number;
+
+      const student = students[number];
+      if (student) {
+        document.getElementById('input-name').value = student.name || '';
+        document.getElementById('input-attendance').value = student.attendance || '';
+        document.getElementById('input-personality').value = student.personality || '';
+
+        if (student.ratings) {
+          for (let i = 0; i < 10; i++) {
+            document.getElementById(`rating-${i + 1}`).value = student.ratings[i];
+          }
+        } else {
+          for (let i = 1; i <= 10; i++) {
+            document.getElementById(`rating-${i}`).value = 5;
+          }
+        }
+      } else {
+        document.getElementById('input-name').value = '';
+        document.getElementById('input-attendance').value = '';
+        document.getElementById('input-personality').value = '';
+        for (let i = 1; i <= 10; i++) {
+          document.getElementById(`rating-${i}`).value = 5;
+        }
+      }
+
+      document.getElementById('input-name').focus();
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function clearStudent() {
+      const number = parseInt(document.getElementById('input-number').value);
+      delete students[number];
+      document.getElementById('input-name').value = '';
+      document.getElementById('input-personality').value = '';
+      saveToStorage();
+      initStudentList();
+    }
+
+    function markAllPresent() {
+      for (let i = 1; i <= totalStudents; i++) {
+        if (students[i]) {
+          students[i].attendance = 'present';
+        }
+      }
+      saveToStorage();
+      initStudentList();
+    }
+
+    function clearAllAttendance() {
+      if (confirm('Bạn có chắc muốn xóa tất cả dữ liệu?')) {
+        for (let key in students) {
+          delete students[key];
+        }
+        dailyData = {};
+        saveToStorage();
+        initStudentList();
+      }
+    }
+
+    function updateStats() {
+      let present = 0, absent = 0, rated = 0;
+
+      for (let key in students) {
+        if (students[key].attendance === 'absent') {
+          absent++;
+        } else if (students[key].name) {
+          // Nếu có tên và không vắng thì tính là có mặt
+          present++;
+        }
+        if (students[key].ratings) rated++;
+      }
+
+      document.getElementById('stat-present').textContent = present;
+      document.getElementById('stat-absent').textContent = absent;
+      document.getElementById('stat-rated').textContent = rated;
+    }
+
+    function updateOutputTable() {
+      const output = document.getElementById('output-table');
+      const sortedKeys = Object.keys(students).sort((a, b) => parseInt(a) - parseInt(b));
+
+      if (sortedKeys.length === 0) {
+        output.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:40px">Chưa có dữ liệu</div>';
+        return;
+      }
+
+      let html = '<table class="output-table"><thead><tr>';
+      html += '<th>STT</th><th>Họ và Tên</th><th>Điểm danh</th><th>Tính cách</th>';
+
+      for (let i = 1; i <= 10; i++) {
+        html += `<th>M${i}</th>`;
+      }
+
+      html += '<th>TB</th></tr></thead><tbody>';
+
+      sortedKeys.forEach(key => {
+        const s = students[key];
+        html += '<tr>';
+        html += `<td style="text-align:center;font-weight:700;color:var(--primary)">${key}</td>`;
+        html += `<td><strong>${s.name}</strong></td>`;
+
+        // Hiển thị điểm danh: Vắng mặt hoặc Có mặt
+        const attendanceText = s.attendance === 'absent' ? '❌ Vắng mặt' : '✅ Có mặt';
+        const attendanceColor = s.attendance === 'absent' ? '#ef4444' : '#10b981';
+        html += `<td style="text-align:center;font-weight:700;color:${attendanceColor}">${attendanceText}</td>`;
+
+        html += `<td>${s.personality || '-'}</td>`;
+
+        if (s.ratings) {
+          s.ratings.forEach(r => {
+            const color = r >= 8 ? '#10b981' : r >= 5 ? '#f59e0b' : '#ef4444';
+            html += `<td style="text-align:center;font-weight:700;color:${color}">${r}</td>`;
+          });
+          const avg = (s.ratings.reduce((a, b) => a + b, 0) / 10).toFixed(1);
+          html += `<td style="text-align:center;font-weight:700;background:#eef2ff;color:var(--primary)">${avg}</td>`;
+        } else {
+          for (let i = 0; i < 11; i++) html += '<td style="text-align:center">-</td>';
+        }
+
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+      output.innerHTML = html;
+    }
+
+    function importFromFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const text = e.target.result;
+          const lines = text.split('\n');
+          let imported = 0;
+
+          for (let line of lines) {
+            line = line.trim();
+            if (!line || line.startsWith('=') || line.startsWith('-')) continue;
+
+            if (line.startsWith('STT:')) {
+              const sttMatch = line.match(/STT:\s*(\d+)/);
+              if (!sttMatch) continue;
+
+              const number = parseInt(sttMatch[1]);
+              if (number < 1 || number > 60) continue;
+
+              if (!students[number]) students[number] = {};
+
+              let idx = lines.indexOf(line);
+
+              for (let i = idx + 1; i < lines.length && i < idx + 20; i++) {
+                const l = lines[i].trim();
+
+                if (l.startsWith('Họ và tên:')) {
+                  students[number].name = l.replace('Họ và tên:', '').trim();
+                }
+                else if (l.startsWith('Tính cách:')) {
+                  students[number].personality = l.replace('Tính cách:', '').trim();
+                }
+                else if (l.match(/^\d+\.\s+.+:\s+(\d+)\/10$/)) {
+                  if (!students[number].ratings) students[number].ratings = [];
+                  const ratingMatch = l.match(/:\s+(\d+)\/10$/);
+                  if (ratingMatch) {
+                    students[number].ratings.push(parseInt(ratingMatch[1]));
+                  }
+                }
+                else if (l.startsWith('STT:')) {
+                  break;
+                }
+              }
+
+              if (students[number].name) {
+                students[number].attendance = 'present';
+                imported++;
+              }
+            }
+          }
+
+          if (imported > 0) {
+            alert(`✅ Đã nhập thành công ${imported} học sinh từ file!`);
+            saveToStorage();
+            initStudentList();
+          } else {
+            alert('❌ Không tìm thấy dữ liệu hợp lệ trong file!');
+          }
+
+        } catch (error) {
+          alert('❌ Lỗi khi đọc file: ' + error.message);
+        }
+
+        event.target.value = '';
+      };
+
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    function exportToFile() {
+      if (Object.keys(students).length === 0 && Object.keys(dailyData).length === 0) {
+        alert('Chưa có dữ liệu để xuất!');
+        return;
+      }
+
+      const currentDate = document.getElementById('input-date').value;
+      let content = '╔══════════════════════════════════════════════════════════════╗\n';
+      content += '║     BẢNG ĐÁNH GIÁ HỌC SINH MẪU GIÁO - BÁO CÁO CHI TIẾT      ║\n';
+      content += '╚══════════════════════════════════════════════════════════════╝\n\n';
+      content += '📅 Ngày xuất: ' + new Date().toLocaleString('vi-VN') + '\n';
+      content += '📏 Thang điểm: 1-10 (1: Yếu → 10: Xuất sắc)\n\n';
+
+      content += '📋 10 Mục đánh giá:\n';
+      ratingLabels.forEach((label, i) => {
+        content += `   ${i + 1}. ${label}\n`;
+      });
+      content += '\n' + '═'.repeat(80) + '\n\n';
+
+      // PHẦN 1: DỮ LIỆU THEO NGÀY
+      if (Object.keys(dailyData).length > 0) {
+        content += '��� PHẦN I: DỮ LIỆU THEO NGÀY\n';
+        content += '═'.repeat(80) + '\n\n';
+
+        const sortedDates = Object.keys(dailyData).sort();
+
+        sortedDates.forEach(date => {
+          content += `\n📅 NGÀY: ${date}\n`;
+          content += '─'.repeat(80) + '\n';
+
+          const dayStudents = dailyData[date];
+          const sortedKeys = Object.keys(dayStudents).sort((a, b) => parseInt(a) - parseInt(b));
+
+          let presentCount = 0, absentCount = 0;
+
+          sortedKeys.forEach(key => {
+            const s = dayStudents[key];
+
+            content += `\n📌 STT: ${key}\n`;
+            content += `   👤 Họ và tên: ${s.name}\n`;
+
+            if (s.attendance === 'absent') {
+              content += `   📊 Điểm danh: ❌ VẮNG MẶT\n`;
+              absentCount++;
+            } else {
+              content += `   📊 Điểm danh: ✅ CÓ MẶT\n`;
+              presentCount++;
+            }
+
+            if (s.personality) {
+              content += `   💭 Tính cách: ${s.personality}\n`;
+            }
+
+            if (s.ratings) {
+              content += `   ⭐ Đánh giá chi tiết:\n`;
+              s.ratings.forEach((rating, i) => {
+                const stars = '★'.repeat(Math.round(rating));
+                content += `      ${i + 1}. ${ratingLabels[i]}: ${rating}/10 ${stars}\n`;
+              });
+              const avg = (s.ratings.reduce((a, b) => a + b, 0) / 10).toFixed(1);
+              content += `   🏆 Điểm trung bình: ${avg}/10\n`;
+            }
+          });
+
+          content += `\n📊 THỐNG KÊ NGÀY ${date}:\n`;
+          content += `   • Tổng học sinh: ${sortedKeys.length}\n`;
+          content += `   • Có mặt: ${presentCount} học sinh ✅\n`;
+          content += `   • Vắng: ${absentCount} học sinh ❌\n`;
+          content += `   • Tỷ lệ có mặt: ${((presentCount / sortedKeys.length) * 100).toFixed(1)}%\n`;
+          content += '\n' + '─'.repeat(80) + '\n';
+        });
+      }
+
+      // PHẦN 2: TỔNG KẾT THÁNG
+      content += '\n\n';
+      content += '📊 PHẦN II: TỔNG KẾT THEO THÁNG\n';
+      content += '═'.repeat(80) + '\n\n';
+
+      const monthlyStats = {};
+
+      Object.keys(dailyData).forEach(date => {
+        const month = date.substring(0, 7); // YYYY-MM
+        if (!monthlyStats[month]) {
+          monthlyStats[month] = {
+            totalDays: 0,
+            studentAttendance: {},
+            totalPresent: 0,
+            totalAbsent: 0
+          };
+        }
+
+        monthlyStats[month].totalDays++;
+
+        Object.keys(dailyData[date]).forEach(stuNum => {
+          const s = dailyData[date][stuNum];
+          if (!monthlyStats[month].studentAttendance[stuNum]) {
+            monthlyStats[month].studentAttendance[stuNum] = {
+              name: s.name,
+              present: 0,
+              absent: 0,
+              ratings: []
+            };
+          }
+
+          if (s.attendance === 'absent') {
+            monthlyStats[month].studentAttendance[stuNum].absent++;
+            monthlyStats[month].totalAbsent++;
+          } else {
+            monthlyStats[month].studentAttendance[stuNum].present++;
+            monthlyStats[month].totalPresent++;
+          }
+
+          if (s.ratings) {
+            monthlyStats[month].studentAttendance[stuNum].ratings.push(s.ratings);
+          }
+        });
+      });
+
+      Object.keys(monthlyStats).sort().forEach(month => {
+        const stats = monthlyStats[month];
+        const [year, monthNum] = month.split('-');
+
+        content += `\n📅 THÁNG ${monthNum}/${year}\n`;
+        content += '─'.repeat(80) + '\n';
+        content += `📆 Tổng số ngày có dữ liệu: ${stats.totalDays} ngày\n`;
+        content += `👥 Tổng lượt có mặt: ${stats.totalPresent}\n`;
+        content += `❌ Tổng lượt vắng: ${stats.totalAbsent}\n`;
+        content += `📊 Tỷ lệ có mặt: ${((stats.totalPresent / (stats.totalPresent + stats.totalAbsent)) * 100).toFixed(1)}%\n\n`;
+
+        content += `📋 CHI TIẾT TỪNG HỌC SINH:\n\n`;
+
+        const sortedStudents = Object.keys(stats.studentAttendance).sort((a, b) => parseInt(a) - parseInt(b));
+
+        sortedStudents.forEach(stuNum => {
+          const stuData = stats.studentAttendance[stuNum];
+          const attendanceRate = ((stuData.present / (stuData.present + stuData.absent)) * 100).toFixed(1);
+
+          content += `   ${stuNum}. ${stuData.name}\n`;
+          content += `      • Có mặt: ${stuData.present} ngày ✅\n`;
+          content += `      • Vắng: ${stuData.absent} ngày ❌\n`;
+          content += `      • Tỷ lệ chuyên cần: ${attendanceRate}%\n`;
+
+          if (stuData.ratings.length > 0) {
+            const avgRatings = [];
+            for (let i = 0; i < 10; i++) {
+              const sum = stuData.ratings.reduce((acc, r) => acc + r[i], 0);
+              avgRatings.push((sum / stuData.ratings.length).toFixed(1));
+            }
+            const totalAvg = (avgRatings.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / 10).toFixed(1);
+            content += `      • Điểm trung bình tháng: ${totalAvg}/10 ⭐\n`;
+          }
+          content += '\n';
+        });
+
+        content += '─'.repeat(80) + '\n';
+      });
+
+      content += '\n' + '═'.repeat(80) + '\n';
+      content += '                    *** HẾT BÁO CÁO ***\n';
+      content += '═'.repeat(80) + '\n';
+
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'kindergarten-report-' + new Date().toISOString().slice(0,10) + '.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+
+      alert('✅ Đã xuất báo cáo đầy đủ theo ngày và tháng!');
+    }
+
+    function exportToExcel(type) {
+      if (Object.keys(dailyData).length === 0 && Object.keys(students).length === 0) {
+        alert('Chưa có dữ liệu để xuất!');
+        return;
+      }
+
+      let csvContent = '';
+      const currentDate = document.getElementById('input-date').value;
+
+      if (type === 'day') {
+        // XUẤT THEO NGÀY
+        csvContent = 'BÁO CÁO THEO NGÀY - ' + currentDate + '\n\n';
+        csvContent += 'STT,Họ và Tên,Điểm Danh,Tính Cách,';
+
+        for (let i = 1; i <= 10; i++) {
+          csvContent += `Mục ${i},`;
+        }
+        csvContent += 'Điểm TB\n';
+
+        // Lấy dữ liệu ngày hiện tại hoặc dữ liệu đang hiển thị
+        const dataToExport = dailyData[currentDate] || students;
+        const sortedKeys = Object.keys(dataToExport).sort((a, b) => parseInt(a) - parseInt(b));
+
+        sortedKeys.forEach(key => {
+          const s = dataToExport[key];
+          const attendanceText = s.attendance === 'absent' ? 'Vắng' : 'Có mặt';
+
+          csvContent += `${key},"${s.name}",${attendanceText},"${s.personality || ''}"`;
+
+          if (s.ratings) {
+            s.ratings.forEach(r => {
+              csvContent += `,${r}`;
+            });
+            const avg = (s.ratings.reduce((a, b) => a + b, 0) / 10).toFixed(1);
+            csvContent += `,${avg}`;
+          } else {
+            for (let i = 0; i < 11; i++) csvContent += ',';
+          }
+          csvContent += '\n';
+        });
+
+        csvContent += `\nThống kê ngày ${currentDate}\n`;
+        const present = sortedKeys.filter(k => dataToExport[k].attendance !== 'absent').length;
+        const absent = sortedKeys.filter(k => dataToExport[k].attendance === 'absent').length;
+        csvContent += `Tổng số học sinh,${sortedKeys.length}\n`;
+        csvContent += `Có mặt,${present}\n`;
+        csvContent += `Vắng,${absent}\n`;
+        csvContent += `Tỷ lệ có mặt,${((present / sortedKeys.length) * 100).toFixed(1)}%\n`;
+
+      } else if (type === 'week') {
+        // XUẤT THEO TUẦN
+        const dates = Object.keys(dailyData).sort();
+        if (dates.length === 0) {
+          alert('Chưa có dữ liệu theo ngày để xuất theo tuần!');
+          return;
+        }
+
+        // Lấy 7 ngày gần nhất
+        const weekDates = dates.slice(-7);
+
+        csvContent = 'BÁO CÁO THEO TUẦN (' + weekDates[0] + ' đến ' + weekDates[weekDates.length - 1] + ')\n\n';
+        csvContent += 'STT,Họ và Tên';
+
+        weekDates.forEach(date => {
+          csvContent += `,${date}`;
+        });
+        csvContent += ',Tổng Có Mặt,Tổng Vắng,Tỷ Lệ (%)\n';
+
+        // Thu thập tất cả học sinh trong tuần
+        const allStudents = {};
+        weekDates.forEach(date => {
+          Object.keys(dailyData[date]).forEach(stuNum => {
+            if (!allStudents[stuNum]) {
+              allStudents[stuNum] = {
+                name: dailyData[date][stuNum].name,
+                attendance: {}
+              };
+            }
+            allStudents[stuNum].attendance[date] = dailyData[date][stuNum].attendance;
+          });
+        });
+
+        const sortedStudents = Object.keys(allStudents).sort((a, b) => parseInt(a) - parseInt(b));
+
+        sortedStudents.forEach(stuNum => {
+          const stu = allStudents[stuNum];
+          csvContent += `${stuNum},"${stu.name}"`;
+
+          let presentCount = 0, absentCount = 0;
+
+          weekDates.forEach(date => {
+            if (stu.attendance[date]) {
+              const status = stu.attendance[date] === 'absent' ? 'Vắng' : 'Có mặt';
+              csvContent += `,${status}`;
+              if (stu.attendance[date] === 'absent') absentCount++;
+              else presentCount++;
+            } else {
+              csvContent += ',';
+            }
+          });
+
+          const total = presentCount + absentCount;
+          const rate = total > 0 ? ((presentCount / total) * 100).toFixed(1) : 0;
+          csvContent += `,${presentCount},${absentCount},${rate}%\n`;
+        });
+
+        csvContent += '\nThống kê tuần\n';
+        weekDates.forEach(date => {
+          const dayData = dailyData[date];
+          const present = Object.keys(dayData).filter(k => dayData[k].attendance !== 'absent').length;
+          const absent = Object.keys(dayData).filter(k => dayData[k].attendance === 'absent').length;
+          csvContent += `${date},Có mặt: ${present} - Vắng: ${absent}\n`;
+        });
+
+      } else if (type === 'month') {
+        // XUẤT THEO THÁNG
+        const dates = Object.keys(dailyData).sort();
+        if (dates.length === 0) {
+          alert('Chưa có dữ liệu theo ngày để xuất theo tháng!');
+          return;
+        }
+
+        // Nhóm theo tháng
+        const months = {};
+        dates.forEach(date => {
+          const month = date.substring(0, 7);
+          if (!months[month]) months[month] = [];
+          months[month].push(date);
+        });
+
+        const sortedMonths = Object.keys(months).sort();
+        const latestMonth = sortedMonths[sortedMonths.length - 1];
+        const monthDates = months[latestMonth];
+
+        csvContent = 'BÁO CÁO THEO THÁNG ' + latestMonth + '\n\n';
+        csvContent += 'STT,Họ và Tên,Số Ngày Có Mặt,Số Ngày Vắng,Tổng Ngày,Tỷ Lệ Chuyên Cần (%),Điểm TB Tháng\n';
+
+        const monthStudents = {};
+        monthDates.forEach(date => {
+          Object.keys(dailyData[date]).forEach(stuNum => {
+            if (!monthStudents[stuNum]) {
+              monthStudents[stuNum] = {
+                name: dailyData[date][stuNum].name,
+                present: 0,
+                absent: 0,
+                ratings: []
+              };
+            }
+
+            if (dailyData[date][stuNum].attendance === 'absent') {
+              monthStudents[stuNum].absent++;
+            } else {
+              monthStudents[stuNum].present++;
+            }
+
+            if (dailyData[date][stuNum].ratings) {
+              monthStudents[stuNum].ratings.push(dailyData[date][stuNum].ratings);
+            }
+          });
+        });
+
+        const sortedMonthStudents = Object.keys(monthStudents).sort((a, b) => parseInt(a) - parseInt(b));
+
+        sortedMonthStudents.forEach(stuNum => {
+          const stu = monthStudents[stuNum];
+          const total = stu.present + stu.absent;
+          const rate = ((stu.present / total) * 100).toFixed(1);
+
+          let avgScore = '';
+          if (stu.ratings.length > 0) {
+            const totalAvg = stu.ratings.map(r => r.reduce((a, b) => a + b, 0) / 10);
+            avgScore = (totalAvg.reduce((a, b) => a + b, 0) / totalAvg.length).toFixed(1);
+          }
+
+          csvContent += `${stuNum},"${stu.name}",${stu.present},${stu.absent},${total},${rate}%,${avgScore}\n`;
+        });
+
+        csvContent += '\nTổng hợp tháng ' + latestMonth + '\n';
+        csvContent += `Số ngày có dữ liệu,${monthDates.length}\n`;
+
+        let totalPresent = 0, totalAbsent = 0;
+        Object.values(monthStudents).forEach(stu => {
+          totalPresent += stu.present;
+          totalAbsent += stu.absent;
+        });
+
+        csvContent += `Tổng lượt có mặt,${totalPresent}\n`;
+        csvContent += `Tổng lượt vắng,${totalAbsent}\n`;
+        csvContent += `Tỷ lệ có mặt trung bình,${((totalPresent / (totalPresent + totalAbsent)) * 100).toFixed(1)}%\n`;
+
+        csvContent += '\n\nChi tiết 10 mục đánh giá trung bình tháng\n';
+        csvContent += 'STT,Họ và Tên';
+        for (let i = 1; i <= 10; i++) {
+          csvContent += `,${ratingLabels[i - 1]}`;
+        }
+        csvContent += '\n';
+
+        sortedMonthStudents.forEach(stuNum => {
+          const stu = monthStudents[stuNum];
+          csvContent += `${stuNum},"${stu.name}"`;
+
+          if (stu.ratings.length > 0) {
+            for (let i = 0; i < 10; i++) {
+              const sum = stu.ratings.reduce((acc, r) => acc + r[i], 0);
+              const avg = (sum / stu.ratings.length).toFixed(1);
+              csvContent += `,${avg}`;
+            }
+          } else {
+            for (let i = 0; i < 10; i++) csvContent += ',';
+          }
+          csvContent += '\n';
+        });
+      }
+
+      // Thêm BOM cho UTF-8
+      const BOM = '\uFEFF';
+      const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const typeNames = {
+        'day': 'ngay',
+        'week': 'tuan',
+        'month': 'thang'
+      };
+      a.download = `kindergarten-${typeNames[type]}-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      alert(`✅ Đã xuất báo cáo Excel theo ${type === 'day' ? 'ngày' : type === 'week' ? 'tuần' : 'tháng'}!`);
+    }
+
+    // load saved data first, then init list
+    loadFromStorage();
+    initStudentList();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+    }
+  </script>
+</body>
+</html>
